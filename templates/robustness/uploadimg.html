@@ -1,0 +1,33 @@
+<!-- templates/robustness/uploadimg.html -->
+<!doctype html>
+<html lang="zh">
+{% load static %}
+
+<head>
+    <title>Add</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<h1>鲁棒性展示</h1>
+
+
+{% if request.session.uploaded %}
+    <div class="showall">
+        <p>原始样本</p>
+        <img width="10%" height="10%" src="../../{{ ori_path }}">
+        <p>对抗性样本</p>
+        <img width="10%" height="10%" src="../../{{ adversarial }}">
+        <form method="post" action="{% url 'robustness:test' %}">
+            {% csrf_token %}
+            <input type="submit" value="开始识别"/>
+        </form>
+    </div>
+{% else %}
+    <form method="post" enctype="multipart/form-data" action="{% url 'robustness:upload' %}">
+        {% csrf_token %}
+        {{ af.as_p }}
+        <input type="submit" value="上传图片"/>
+    </form>
+{% endif %}
+</body>
+</html>

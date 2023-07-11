@@ -1,0 +1,13 @@
+fairlearn==0.8.0
+matplotlib==3.7.1
+numpy==1.24.3
+pandas~=2.0.3
+Pillow==9.5.0
+Pillow==9.5.0
+robustbench==1.1
+scikit_learn==1.2.2
+timm==0.6.13
+torch==2.0.1
+torchattacks==3.4.0
+torchvision==0.15.2
+django~=4.1

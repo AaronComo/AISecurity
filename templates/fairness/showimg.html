@@ -1,0 +1,24 @@
+<!-- templates/robustness/showimg.html -->
+<!doctype html>
+<html>
+<head>
+    <title>Detail</title>
+    <meta charset="utf-8">
+</head>
+<body>
+<div>
+    <p>未去偏的预测效果</p>
+    <img width="50%" height="50%" src="../../{{ raw_path }}">
+</div>
+<div>
+    <p>应用偏见去除方法Demographicparity</p>
+    <img width="50%" height="50%" src="../../{{ demo_path }}">
+</div>
+
+<div>
+    <p>应用对抗性偏见去除方法Adversarialfairness</p>
+    <img width="50%" height="50%" src="../../{{ adv_path }}">
+</div>
+
+</body>
+</html>
