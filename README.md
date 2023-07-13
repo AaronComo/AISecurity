@@ -11,7 +11,7 @@
 
 2. 流程
 
-    - 上传图片后, 将使用 PGD 攻击方法产生一个对抗性样本, 默认目标标签如下, 可在 eval.py 中更改 `target_label` 来适配自己的需求, 生成的对抗性样本为 `./static/robustness/adversarial.png`
+    - 上传图片后, 将使用 PGD 攻击方法产生一个对抗性样本~~, 默认目标标签如下,~~ 可在 eval.py 中更改 `target_label` 来适配自己的需求, 生成的对抗性样本为 `./static/robustness/adversarial.png`
 
         ~~~json
           "10": [
@@ -165,6 +165,7 @@
         - `robust` &rightarrow; `test_robust`
     - 重写所有 API
     - 重构 robustness.py
+    - 修改对抗性样本目标为随机数
 
 
 
@@ -172,3 +173,4 @@
 
 1. 前后端解耦合
 2. 调整所有接口, 返回 JSON 数据
+3. 增加安全性检查
