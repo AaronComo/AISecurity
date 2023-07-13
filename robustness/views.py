@@ -1,7 +1,7 @@
 import json
 
 from PIL import Image
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.middleware.csrf import get_token
 from django.shortcuts import render, redirect
 
@@ -31,6 +31,8 @@ def uploadImg(request):
             print(f'model:{model}')
             print(f'y_true:{y_true}')
             print(f'img:{img}')
+            if y_true[0] != 'n':
+                return HttpResponseForbidden("Error file name. Please rename it to match ImageNet.")
             # Img = IMG(img=img)
             # Img.save()
             handle_uploaded_file(img)
@@ -68,6 +70,8 @@ def testRobustness(request):
         cont = wrapper(json.loads(cont.split('\'')[1]), method="decode")
         # cont = request.session["variables"]
         print(cont)
+        if cont == {}:
+            return HttpResponseForbidden('Empty request.')
         advImage = Image.open(cont["adversarial"])
         # advImage.show()
         pth2, pre = test_robust(cont["model"], advImage)
@@ -100,7 +104,7 @@ def wrapper(cont,  method) -> dict:
     decode: http -> relative
     """
     if method == "encode":
-        prefix = '' # remove Server HTTP address prefix
+        prefix = 'http://hzla.f3322.net:21200/static/robustness/'
     else:
         prefix = './static/robustness/'
     for i in cont.keys():
