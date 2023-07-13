@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torchattacks
 
+import random
 import json
 from PIL import Image
 from torchvision import models
@@ -104,7 +105,7 @@ def adv_attack(name, x, y_true):
     # print('Acc: %2.2f %%'%(acc*100))
 
     # attacklabel, you can choose your own attack label
-    target_label = 10
+    target_label = random.randint(0, 999)
     target_label = torch.tensor([target_label])
 
     return attack(model, images, target_label)
