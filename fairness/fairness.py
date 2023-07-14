@@ -1,36 +1,33 @@
-import numpy as np
-from numpy import number
-from numpy import mean
-
 from math import sqrt
 
-import torch
-import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.datasets import fetch_openml
-
+import numpy as np
+import pandas as pd
+import torch
+from fairlearn.adversarial import AdversarialFairnessClassifier
 from fairlearn.metrics import MetricFrame
 from fairlearn.metrics import (
     selection_rate,
     demographic_parity_difference,
     count)
-
 from fairlearn.reductions import ExponentiatedGradient, DemographicParity
-from fairlearn.adversarial import AdversarialFairnessClassifier
-
-from sklearn.metrics import accuracy_score, precision_score
-from sklearn.tree import DecisionTreeClassifier
+from numpy import mean
+from numpy import number
 from sklearn.compose import make_column_transformer, make_column_selector
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.datasets import fetch_openml
 from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.tree import DecisionTreeClassifier
 
 from .models import PredictorModel
 
 schedulers = []
 step = 1
 X_prep_test, Y_test, pos_label, Z_test = 0, 0, 0, 0
+
 
 def raw(X, y_true, sex, path):
     classifier = DecisionTreeClassifier(min_samples_leaf=10, max_depth=4)
@@ -42,14 +39,14 @@ def raw(X, y_true, sex, path):
     sr = MetricFrame(metrics=selection_rate, y_true=y_true, y_pred=y_pred, sensitive_features=sex)
 
     metrics = {
-        "accuracy": accuracy_score,
-        "selection rate": selection_rate,
-        "count": count,
+        "Accuracy": accuracy_score,
+        "Selection Rate": selection_rate,
+        "Salary": count,
     }
     metric_frame = MetricFrame(
         metrics=metrics, y_true=y_true, y_pred=y_pred, sensitive_features=sex
     )
-    plot(metric_frame, 'Raw AI model', savepth=path)
+    plot(metric_frame, 'Raw AI Model', savepth=path)
 
 
 def Demographicparity(X, y_true, sex, path):
@@ -64,14 +61,14 @@ def Demographicparity(X, y_true, sex, path):
                                y_pred=y_pred_mitigated, sensitive_features=sex)
 
     metrics = {
-        "accuracy": accuracy_score,
-        "selection rate": selection_rate,
-        "count": count,
+        "Accuracy": accuracy_score,
+        "Selection Rate": selection_rate,
+        "Salary": count,
     }
     metric_frame = MetricFrame(
         metrics=metrics, y_true=y_true, y_pred=y_pred_mitigated, sensitive_features=sex
     )
-    plot(metric_frame, 'After augmentation', savepth=path)
+    plot(metric_frame, 'Model debias based on data preprocessing', savepth=path)
 
 
 def Adversarialfairness(path):
@@ -134,14 +131,14 @@ def Adversarialfairness(path):
     )
 
     metrics = {
-        "accuracy": accuracy_score,
-        "selection rate": selection_rate,
-        "count": count,
+        "Accuracy": accuracy_score,
+        "Selection Rate": selection_rate,
+        "Salary": count,
     }
     metric_frame = MetricFrame(
         metrics=metrics, y_true=Y_test == pos_label, y_pred=predictions == pos_label, sensitive_features=Z_test
     )
-    plot(metric_frame, 'After augmentation', savepth=path)
+    plot(metric_frame, 'Model debias based on forgetting learning', savepth=path)
 
 
 def validate(mitigator):
