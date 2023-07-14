@@ -46,7 +46,7 @@ def attack(model, images, target):
     idx = 0
     pre = get_pred(model, adv_images[idx:idx + 1], device)
     pth = f'./static/robustness/target_{target}.png'
-    pth1 = './static/robustness/adversarial.png'
+    pth1 = f'./static/robustness/adversarial_{target}.png'
     imshow(adv_images[idx:idx + 1], title="True:{}, Pre:{}".format(idx2label[labels[idx]], idx2label[pre]), pth=pth)
     imsave(adv_images, pth=pth1)
     return pth, pth1, idx2chinese[labels[idx]], idx2chinese[pre]
