@@ -11,6 +11,8 @@ from fairlearn.metrics import (
     demographic_parity_difference,
     count)
 from fairlearn.reductions import ExponentiatedGradient, DemographicParity
+from fairlearn.datasets import fetch_diabetes_hospital
+from fairlearn.preprocessing import CorrelationRemover
 from numpy import mean
 from numpy import number
 from sklearn.compose import make_column_transformer, make_column_selector
@@ -141,6 +143,57 @@ def Adversarialfairness(path):
     plot(metric_frame, 'Model debias based on forgetting learning', savepth=path)
 
 
+# ===============new================
+
+def CorrelationRemove(path):
+    data = fetch_diabetes_hospital()
+    X_raw = data.data[["race", "time_in_hospital", "had_inpatient_days", "medicare"]]
+    X_raw = pd.get_dummies(X_raw)
+    y = data.target
+
+    X_raw = X_raw.drop(
+        [
+            "race_Asian",
+            "race_Caucasian",
+            "race_Hispanic",
+            "race_Other",
+            "race_Unknown",
+            "had_inpatient_days_False",
+            "medicare_False",
+        ],
+        axis=1,
+    )
+
+    X_raw = X_raw[
+        [
+            "time_in_hospital",
+            "had_inpatient_days_True",
+            "medicare_True",
+            "race_AfricanAmerican",
+        ]
+    ]
+
+    cr = CorrelationRemover(sensitive_feature_ids=["race_AfricanAmerican"])
+    X_cr = cr.fit_transform(X_raw)
+    X_cr = pd.DataFrame(
+        X_cr, columns=["time_in_hospital", "had_inpatient_days_True", "medicare_True"]
+    )
+    X_cr["race_AfricanAmerican"] = X_raw["race_AfricanAmerican"]
+
+    cr_alpha = CorrelationRemover(sensitive_feature_ids=["race_AfricanAmerican"], alpha=0.5)
+    X_cr_alpha = cr_alpha.fit_transform(X_raw)
+    X_cr_alpha = pd.DataFrame(
+        X_cr_alpha, columns=["time_in_hospital", "had_inpatient_days_True", "medicare_True"]
+    )
+    X_cr_alpha["race_AfricanAmerican"] = X_raw["race_AfricanAmerican"]
+
+    plot_heatmap(X_raw, y, "Correlation values in the original dataset", path["pic1"])
+    plot_heatmap(X_cr, y, "Correlation values after CorrelationRemover", path["pic2"])
+    plot_heatmap(X_cr_alpha, y, "Correlation values after CorrelationRemover with alpha = 0.5", path["pic3"])
+
+
+# ===============end new================
+
 def validate(mitigator):
     global X_prep_test, Y_test, pos_label, Z_test
     predictions = mitigator.predict(X_prep_test)
@@ -201,7 +254,44 @@ def plot(metric_frame, title, savepth):
     plt.savefig(savepth)
 
 
-def fairness(raw_path, demo_path, adv_path):
+# ===============new================
+
+def plot_heatmap(df, y, title, savepth):
+    df["target"] = y
+    df = df.rename(columns={"had_inpatient_days_True": "had_inpatient_days"})
+    cols = list(df.columns)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.imshow(round(df.corr(), 2), cmap="coolwarm")
+
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(np.arange(len(cols)))
+    ax.set_xticklabels(cols)
+    ax.set_yticks(np.arange(len(cols)))
+    ax.set_yticklabels(cols)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=15, ha="right", rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(cols)):
+        for j in range(len(cols)):
+            ax.text(
+                j,
+                i,
+                round(df.corr().to_numpy()[i, j], 2),
+                ha="center",
+                va="center",
+            )
+
+    ax.set_title(f"{title}")
+    # plt.show()
+    plt.savefig(savepth)
+
+
+# ===============end new================
+
+def fairness(raw_path, demo_path, adv_path, cor_path):
     # Load dataset from openml
     data = fetch_openml(data_id=1590, as_frame=True)
     X = pd.get_dummies(data.data)
@@ -214,4 +304,7 @@ def fairness(raw_path, demo_path, adv_path):
     Demographicparity(X, y_true, sex, demo_path)
 
     Adversarialfairness(adv_path)
+
+    CorrelationRemove(cor_path)  # new
+
     return True

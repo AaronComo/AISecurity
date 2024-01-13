@@ -9,6 +9,9 @@ from robustness.eval import test_robust
 from robustness.forms import UploadForm, ResponseForm
 from .eval import adv_attack
 
+HTTP_PREFIX = "http://127.0.0.1"
+PORT = "8000"
+
 
 def index(request):
     return render(request, 'robustness/index.html')
@@ -97,14 +100,14 @@ def addr(st, prefix):
     return prefix + s[len(s) - 1]
 
 
-def wrapper(cont,  method) -> dict:
+def wrapper(cont, method) -> dict:
     r"""
     method = ["encode", "decode"]
     encode: relative -> http
     decode: http -> relative
     """
     if method == "encode":
-        prefix = 'http://hzla.f3322.net:21200/static/robustness/'
+        prefix = f"{HTTP_PREFIX}:{PORT}/static/robustness/"
     else:
         prefix = './static/robustness/'
     for i in cont.keys():

@@ -60,7 +60,7 @@ def test_robust(name, adv_images):
 
     pre = get_pred(model, adv_images[idx:idx + 1], device)
     pth = f'./static/robustness/robust_{name}.png'
-    imshow(adv_images[idx:idx + 1], title="True:{}, Pre:{}".format(idx2label[labels[idx]], idx2label[pre]), pth=pth)
+    # imshow(adv_images[idx:idx + 1], title="True:{}, Pre:{}".format(idx2label[labels[idx]], idx2label[pre]), pth=pth)
     return pth, idx2chinese[pre]
 
 
